@@ -143,6 +143,89 @@ describe("GET /companies/:handle", function () {
   });
 });
 
+/************************************** GET /companies?queries*/
+
+describe("GET /companies?params", function () {
+  test("minEmployees params", async function(){
+    const resp = await request(app).get(`/companies?minEmployees=3`)
+    expect(resp.statusCode).toBe(200);
+    expect(resp.body).toEqual({
+      companies : [{
+          handle: "c3",
+          name: "C3",
+          description: "Desc3",
+          numEmployees: 3,
+          logoUrl: "http://c3.img"
+        }]
+    })
+  })
+  test("maxEmployees params", async function(){
+    const resp = await request(app).get(`/companies?maxEmployees=1`)
+    expect(resp.statusCode).toBe(200);
+    expect(resp.body).toEqual({
+      companies : [{
+          handle: "c1",
+          name: "C1",
+          description: "Desc1",
+          numEmployees: 1,
+          logoUrl: "http://c1.img"
+        }]
+    })
+  })
+  test("minEmployees and maxEmployees params", async function(){
+    const resp = await request(app).get(`/companies?minEmployees=2&maxEmployees=2`)
+    expect(resp.statusCode).toBe(200);
+    expect(resp.body).toEqual({
+      companies : [{
+          handle: "c2",
+          name: "C2",
+          description: "Desc2",
+          numEmployees: 2,
+          logoUrl: "http://c2.img"
+        }]
+    })
+  })
+  test("minEmployees > maxEmployees params", async function(){
+    const resp = await request(app).get(`/companies?minEmployees=3&maxEmployees=2`)
+    expect(resp.statusCode).toBe(400);
+  })
+  
+  test("nameLike params", async function(){
+    const res = await request(app).get(`/companies?nameLike=c`)
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toEqual({
+      companies:
+          [
+            {
+              handle: "c1",
+              name: "C1",
+              description: "Desc1",
+              numEmployees: 1,
+              logoUrl: "http://c1.img",
+            },
+            {
+              handle: "c2",
+              name: "C2",
+              description: "Desc2",
+              numEmployees: 2,
+              logoUrl: "http://c2.img",
+            },
+            {
+              handle: "c3",
+              name: "C3",
+              description: "Desc3",
+              numEmployees: 3,
+              logoUrl: "http://c3.img",
+            },
+          ],
+    })
+  })
+  test("handle proper validations", async function(){
+    const res = await request(app).get(`/companies?someother=nothing`)
+    expect(res.statusCode).toBe(400)
+  })
+})
+
 /************************************** PATCH /companies/:handle */
 
 describe("PATCH /companies/:handle", function () {
