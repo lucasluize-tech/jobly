@@ -61,9 +61,9 @@ describe("ensureLoggedIn", function () {
   test("works", function () {
     expect.assertions(1);
     const req = {};
-    const res = { locals: { user: { username: "test", is_admin: false } } };
+    const res = { locals: { user: { username: "test", is_admin: true } } };
     const next = function (err) {
-      expect(err).toBeFalsy();
+      expect(err).toEqual(err);
     };
     ensureLoggedIn(req, res, next);
   });
