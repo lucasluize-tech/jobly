@@ -60,6 +60,82 @@ class Company {
            ORDER BY name`);
     return companiesRes.rows;
   }
+  
+  /** Find all companies that match query parameters
+   *
+   * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
+   * */
+   
+   static async find(params){
+     const {minEmployees, maxEmployees, nameLike} = params
+     // if minEmployees is greater than maxEmployees
+     
+     if (parseInt(minEmployees) > parseInt(maxEmployees)) {
+       throw new BadRequestError('minEmployees must be smaller than maxEmployees');
+     }
+     
+     console.log(minEmployees, maxEmployees, nameLike);
+     
+     if (minEmployees && !maxEmployees) {
+       const min = parseInt(minEmployees)
+       const companies = await db.query(
+         `SELECT handle,
+                 name,
+                 description,
+                 num_employees AS "numEmployees",
+                 logo_url AS "logoUrl"
+          FROM companies
+          WHERE num_employees >= $1
+          ORDER BY name` , [min]
+       )
+       return companies.rows;
+       
+     }else if (maxEmployees && !minEmployees) {
+       const max = parseInt(maxEmployees)
+       const companies = await db.query(
+         `SELECT handle,
+                 name,
+                 description,
+                 num_employees AS "numEmployees",
+                 logo_url AS "logoUrl"
+          FROM companies
+          WHERE num_employees <= $1
+          ORDER BY name` , [max]
+       )
+       return companies.rows;
+       
+     }else if (maxEmployees && minEmployees) {
+       const max = parseInt(maxEmployees)
+       const min = parseInt(minEmployees)
+       const companies = await db.query(
+         `SELECT handle,
+                 name,
+                 description,
+                 num_employees AS "numEmployees",
+                 logo_url AS "logoUrl"
+          FROM companies
+          WHERE num_employees BETWEEN $1 AND $2
+          ORDER BY name` , [min,max]
+       )
+       return companies.rows;
+       
+     }else if (nameLike){
+       const name = `'%${nameLike}%'`
+     
+       const companies = await db.query(
+         `SELECT handle,
+                 name,
+                 description,
+                 num_employees AS "numEmployees",
+                 logo_url AS "logoUrl"
+          FROM companies
+          WHERE name ILIKE $1
+          ORDER BY name` , [name]
+       )
+       
+       return companies.rows;
+     }
+   }
 
   /** Given a company handle, return data about company.
    *
