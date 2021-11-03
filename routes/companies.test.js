@@ -20,7 +20,7 @@ afterAll(commonAfterAll);
 
 /************************************** POST /companies */
 
-describe("POST /companies", function () {
+describe.only("POST /companies", function () {
   const newCompany = {
     handle: "new",
     name: "New",
@@ -228,7 +228,7 @@ describe("GET /companies?params", function () {
 
 /************************************** PATCH /companies/:handle */
 
-describe("PATCH /companies/:handle", function () {
+describe.only("PATCH /companies/:handle", function () {
   test("works for users", async function () {
     const resp = await request(app)
         .patch(`/companies/c1`)
@@ -289,7 +289,7 @@ describe("PATCH /companies/:handle", function () {
 
 /************************************** DELETE /companies/:handle */
 
-describe("DELETE /companies/:handle", function () {
+describe.only("DELETE /companies/:handle", function () {
   test("works for users", async function () {
     const resp = await request(app)
         .delete(`/companies/c1`)
