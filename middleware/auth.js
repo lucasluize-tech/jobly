@@ -51,8 +51,29 @@ function ensureLoggedIn(req, res, next) {
   }
 }
 
+async function ensureSameUserOrAdmin(req, res, next) {
+  try {
+    if (!res.locals.user) {
+      return next(new UnauthorizedError())
+    }
+    
+    const user = res.locals.user.username
+    console.log(`user: ${user}`)
+    
+    if (res.locals.user.isAdmin === true || user === req.params.username){
+    console.log(req.params.username)
+      return next()
+    }
+    return next(new UnauthorizedError())
+    
+  } catch (err) {
+    return next(err)
+  }
+}
+
 
 module.exports = {
   authenticateJWT,
   ensureLoggedIn,
+  ensureSameUserOrAdmin
 };
