@@ -15,13 +15,13 @@ class Jobs{
    *
    * */
     
-    static async create(title, salary, equity, company_handle){
+  static async create({ title, salary, equity, companyHandle }){
         const result = await db.query(`
                 INSERT INTO jobs
                 (title, salary, equity, company_handle)
                 VALUES ($1, $2, $3, $4)
-                RETURNING id, title, salary, equity, company_handle AS companyHandle`,
-                [title, salary , equity, company_handle])
+                RETURNING id, title, salary, equity, company_handle AS "companyHandle"`,
+                [title, salary , equity, companyHandle])
         
         return result.rows[0]
         
@@ -51,7 +51,7 @@ class Jobs{
    * Throws NotFoundError if not found.
    **/
 
-  static async get(handle) {
+  static async get(companyHandle) {
     const jobsRes = await db.query(
           `SELECT id,
                   title,
@@ -59,12 +59,12 @@ class Jobs{
                   equity,
                   company_handle as "companyHandle"
            FROM jobs
-           WHERE handle = $1`,
-        [handle]);
+           WHERE company_handle = $1`,
+        [companyHandle]);
 
     const jobs = jobsRes.rows[0];
 
-    if (!jobs) throw new NotFoundError(`No company: ${handle}`);
+    if (!jobs) throw new NotFoundError(`No company: ${companyHandle}`);
 
     return jobs;
   }
