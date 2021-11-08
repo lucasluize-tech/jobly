@@ -84,13 +84,13 @@ describe("get", function () {
     
     test("works", async function () {
         let job = await Jobs.get('c1')
-        expect(job).toEqual({
+        expect(job).toEqual([{
             id: expect.any(Number),
             title: "j1",
             salary: 100000,
             equity: "0.05",
             companyHandle: "c1"
-        });
+        }]);
     });
     
     test("Did not find jobs for this company", async function () {

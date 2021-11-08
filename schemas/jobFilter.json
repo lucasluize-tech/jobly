@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://our.job.com/jobFilter.schema.json",
+  "type": "object",
+  "properties": {
+    "minSalary": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "hasEquity": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": []
+}

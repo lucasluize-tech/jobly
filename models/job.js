@@ -64,12 +64,12 @@ class Jobs{
 
     const jobs = jobsRes.rows[0];
 
-    if (!jobs) throw new NotFoundError(`No company: ${companyHandle}`);
+    if (!jobs) throw new NotFoundError(`No job for company: ${companyHandle}`);
 
-    return jobs;
+    return jobsRes.rows;
   }
   
-  /** Update company data with `data`.
+  /** Update job data with `data`.
    *
    * This is a "partial update" --- it's fine if data doesn't contain all the
    * fields; this only changes provided ones.
