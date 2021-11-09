@@ -102,7 +102,8 @@ describe("GET /jobs", function () {
                     equity: "0",
                     companyHandle: "c2"
                 }
-            ]})
+            ]
+        })
     })
     
     test("get job filtered by title", async function () {
@@ -175,5 +176,11 @@ describe("GET /jobs", function () {
     test('hasEquity not true or false', async function (){
         const resp = await request(app).get('/jobs?hasEquity=anything')
         expect(resp.statusCode).toBe(400)
+    })
+})
+
+describe('/PATCH', function () {
+    test("works", async function(){
+        
     })
 })

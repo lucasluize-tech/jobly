@@ -158,12 +158,15 @@ class Company {
         [handle]);
 
     const company = companyRes.rows[0];
+    
     let jobs = await db.query(`
           SELECT id, title, salary , equity
           FROM jobs
           WHERE company_handle=$1`, [handle])
     
+    if(jobs.rows.length > 0){
     company.jobs = jobs.rows
+    }
 
     if (!company) throw new NotFoundError(`No company: ${handle}`);
 
