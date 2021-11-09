@@ -12,7 +12,7 @@ const Job = require("../models/job");
 const { createToken } = require("../helpers/tokens");
 const userNewSchema = require("../schemas/userNew.json");
 const userUpdateSchema = require("../schemas/userUpdate.json");
-
+ const {randomPassword}= require('secure-random-password');
 const router = express.Router();
 
 
@@ -22,6 +22,9 @@ const router = express.Router();
  * only for admin users to add new users. The new user being added can be an
  * admin.
  *
+ * admin need to provide a password , but it will be automatically changed
+ *  to a random string.
+ 
  * This returns the newly created user and an authentication token for them:
  *  {user: { username, firstName, lastName, email, isAdmin }, token }
  *
@@ -35,8 +38,8 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
       const errs = validator.errors.map(e => e.stack);
       throw new BadRequestError(errs);
     }
-
-    const user = await User.register(req.body);
+    const data = {...req.body, password : randomPassword()};
+    const user = await User.register(data);
     const token = createToken(user);
     return res.status(201).json({ user, token });
   } catch (err) {
