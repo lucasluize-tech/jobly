@@ -244,6 +244,17 @@ class User {
                   RETURNING username, job_id AS "jobId"`, [username, jobId]);
     return result.rows[0]
   }
+  
+  /** Match user known technologies with Job that requires technologies
+  *
+  * returns , [{ id, title, salary, equity, companyHandle, technologies}, ...]
+  *
+  */
+  
+  static async match(username){
+   // TO DO
+   return []
+  }
 }
 
 

@@ -24,6 +24,7 @@ CREATE TABLE jobs (
   company_handle VARCHAR(25) NOT NULL
     REFERENCES companies ON DELETE CASCADE
 );
+CREATE TYPE state AS ENUM ('interested', 'applied', 'accepted', 'rejected')
 
 CREATE TABLE applications (
   username VARCHAR(25)
@@ -32,3 +33,19 @@ CREATE TABLE applications (
     REFERENCES jobs ON DELETE CASCADE,
   PRIMARY KEY (username, job_id)
 );
+
+CREATE TABLE technologies (
+  tech_id INTEGER PRIMARY KEY,
+  name VARCHAR(25) NOT NULL
+)
+
+CREATE TABLE tech_jobs(
+  tech_id INTEGER REFERENCES technologies ON DELETE CASCADE,
+  job_id INTEGER REFERENCES jobs ON DELETE CASCADE,
+  PRIMARY KEY (tech_id, job_id)
+)
+CREATE TABLE users_jobs(
+  tech_id INTEGER REFERENCES technologies ON DELETE CASCADE,
+  username INTEGER REFERENCES users ON DELETE CASCADE,
+  PRIMARY KEY (tech_id, job_id)
+)

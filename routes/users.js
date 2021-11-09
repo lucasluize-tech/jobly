@@ -142,5 +142,13 @@ router.delete("/:username", ensureSameUserOrAdmin, async function (req, res, nex
   }
 });
 
-
+// EXPERIMENTAL FEATURE ----- GET A LIST OF JOBS THAT MATCHES TECHNOLOGIES USER USES ----
+router.get("/:username/jobs/match", ensureSameUserOrAdmin, async function (req, res, next){
+  try {
+    const jobs = await User.match(req.params.username)
+    return res.json({ jobs })
+  } catch (error) {
+    next(error);
+  }
+})
 module.exports = router;
