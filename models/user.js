@@ -233,8 +233,13 @@ class User {
     const user = User.get(username)
     const job = Job.getById(jobId);
     if (!user || !job) throw new NotFoundError(`Username or JobId invalid`)
+    
+    //check if already applied for the job
+    let check = await db.query(`SELECT * FROM applications where username=$1 AND job_id=$2`, [username, jobId])
+    if (check.rows.length !== 0) throw new BadRequestError(`Already applied for this job`)
+    
     let result = await db.query(`
-                  INSERTO INTO applications (username, job_id)
+                  INSERT INTO applications (username, job_id)
                   VALUES ($1, $2)
                   RETURNING username, job_id AS "jobId"`, [username, jobId]);
     return result.rows[0]
