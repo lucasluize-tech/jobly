@@ -69,6 +69,24 @@ class Jobs{
     return jobsRes.rows;
   }
   
+  static async getById(id) {
+    const jobsRes = await db.query(
+          `SELECT id,
+                  title,
+                  salary,
+                  equity,
+                  company_handle as "companyHandle"
+           FROM jobs
+           WHERE id = $1`,
+        [id]);
+
+    const jobs = jobsRes.rows[0];
+
+    if (!jobs) throw new NotFoundError(`No job with id: ${id}`);
+
+    return jobsRes.rows[0];
+  }
+  
   /** Update job data with `data`.
    *
    * This is a "partial update" --- it's fine if data doesn't contain all the

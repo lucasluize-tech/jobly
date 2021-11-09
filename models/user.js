@@ -8,6 +8,7 @@ const {
   BadRequestError,
   UnauthorizedError,
 } = require("../expressError");
+const Job = require("./job") 
 
 const { BCRYPT_WORK_FACTOR } = require("../config.js");
 
@@ -111,7 +112,7 @@ class User {
            FROM users
            ORDER BY username`,
     );
-
+    
     return result.rows;
   }
 
@@ -123,23 +124,44 @@ class User {
    * Throws NotFoundError if user not found.
    **/
 
-  static async get(username) {
+  static async get(user_name) {
     const userRes = await db.query(
-          `SELECT username,
-                  first_name AS "firstName",
-                  last_name AS "lastName",
-                  email,
-                  is_admin AS "isAdmin"
-           FROM users
+          `SELECT u.username,
+                  u.first_name AS "firstName",
+                  u.last_name AS "lastName",
+                  u.email AS "email",
+                  u.is_admin AS "isAdmin",
+                  a.job_id AS "jobId"
+           FROM users AS u
+           LEFT JOIN applications AS a
+           ON u.username = a.username
+           WHERE u.username = $1`,
+        [user_name],
+    );
+    
+    if (!userRes.rows[0]) throw new NotFoundError(`No user found with this username}`);
+
+    const { username, firstName, lastName, email, isAdmin} = userRes.rows[0];
+    let jobs = userRes.rows.map(r => r.jobId)
+
+
+    return {username, firstName, lastName, email, isAdmin, jobs};
+  }
+  
+  /** Given a username, return applied jobs for this user */
+  static async getJobs(username){
+    const userRes = await db.query(
+          `SELECT job_id as "jobId"
+           FROM applications
            WHERE username = $1`,
         [username],
     );
-
-    const user = userRes.rows[0];
-
-    if (!user) throw new NotFoundError(`No user: ${username}`);
-
-    return user;
+    
+    if (userRes.rows.length === 0){
+      throw new NotFoundError(`No applied jobs for: ${username}`)
+    }
+    
+    return userRes.rows
   }
 
   /** Update user data with `data`.
@@ -203,6 +225,19 @@ class User {
     const user = result.rows[0];
 
     if (!user) throw new NotFoundError(`No user: ${username}`);
+  }
+  
+  /** Apply to a job with username and jobId, returns { username, jobId } */
+  static async apply(username, jobId){
+    // check username and jobId
+    const user = User.get(username)
+    const job = Job.getById(jobId);
+    if (!user || !job) throw new NotFoundError(`Username or JobId invalid`)
+    let result = await db.query(`
+                  INSERTO INTO applications (username, job_id)
+                  VALUES ($1, $2)
+                  RETURNING username, job_id AS "jobId"`, [username, jobId]);
+    return result.rows[0]
   }
 }
 

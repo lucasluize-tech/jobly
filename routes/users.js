@@ -8,6 +8,7 @@ const express = require("express");
 const { ensureLoggedIn, ensureSameUserOrAdmin } = require("../middleware/auth");
 const { BadRequestError } = require("../expressError");
 const User = require("../models/user");
+const Job = require("../models/job");
 const { createToken } = require("../helpers/tokens");
 const userNewSchema = require("../schemas/userNew.json");
 const userUpdateSchema = require("../schemas/userUpdate.json");
@@ -42,6 +43,26 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
     return next(err);
   }
 });
+
+
+/** POST /:username/jobs/:id => { applied : jobId}
+ *
+ * Adds a new application to current user or user defined by ADMIN. 
+ *
+ * This returns the newly created application status for jobId
+ *  {applied : jobId}
+ *
+ * Authorization required: login or admin
+ **/
+ 
+router.post('/:username/jobs/:id', ensureSameUserOrAdmin, async function (req, res, next){
+  try {
+    let results = await User.apply(req.params.username, req.params.id)
+    return res.status(201).json({applied : `${results.jobId}`})
+  } catch (error) {
+    next(error);
+  }
+})
 
 
 /** GET / => { users: [ {username, firstName, lastName, email }, ... ] }

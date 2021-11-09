@@ -53,15 +53,14 @@ function ensureLoggedIn(req, res, next) {
 
 async function ensureSameUserOrAdmin(req, res, next) {
   try {
+    // check for logged in user
     if (!res.locals.user) {
       return next(new UnauthorizedError())
     }
     
     const user = res.locals.user.username
-    console.log(`user: ${user}`)
     
     if (res.locals.user.isAdmin === true || user === req.params.username){
-    console.log(req.params.username)
       return next()
     }
     return next(new UnauthorizedError())
