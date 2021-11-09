@@ -179,8 +179,62 @@ describe("GET /jobs", function () {
     })
 })
 
+/************************************** PATCH /jobs */
+
 describe('/PATCH', function () {
     test("works", async function(){
+        let job = await db.query(`
+                SELECT id, company_handle AS "companyHandle" FROM jobs LIMIT 1`)
+        console.log(job.rows[0].id)
+        const resp = await request(app).patch(`/jobs/${job.rows[0].id}`)
+        .send({
+            title: "Patch works",
+        })
+        .set("authorization", `Bearer ${u1Token}`)
+        expect(resp.statusCode).toBe(200)
+        expect(resp.body).toEqual({job:{
+            id: expect.any(Number),
+            title: "Patch works",
+            salary: expect.any(Number),
+            equity: expect.any(String),
+            companyHandle: `${job.rows[0].companyHandle}`
+        }})
+    })
+    
+    test("Unauthorized code and Message", async function (){
+        let job = await db.query(`
+                SELECT id, company_handle AS "companyHandle" FROM jobs LIMIT 1`)
+        const resp = await request(app).patch(`/jobs/${job.rows[0].id}`)
+        .send({
+            title: "Patch works",
+            salary : null,
+            equity: null
+        })
+        expect(resp.statusCode).toBe(401)
+        expect(resp.body.error.message).toEqual("Unauthorized")
+    })
+})
+
+/************************************** DELETE /jobs */
+
+describe("DELETE /jobs", function(){
+    test("works", async function(){
+        let job = await db.query(`
+                SELECT id FROM jobs LIMIT 1`)
+        const resp = await request(app).delete(`/jobs/${job.rows[0].id}`)
+        .set("authorization", `Bearer ${u1Token}`)
+        expect(resp.statusCode).toBe(200)
+        expect(resp.body).toEqual({
+            msg: "deleted"
+        })
+    })
+    
+    test("Unauthorized code and Message", async function(){
+        let job = await db.query(`
+                SELECT id FROM jobs LIMIT 1`)
+        const resp = await request(app).delete(`/jobs/${job.rows[0].id}`)
         
+        expect(resp.statusCode).toBe(401)
+        expect(resp.body.error.message).toEqual("Unauthorized")
     })
 })
