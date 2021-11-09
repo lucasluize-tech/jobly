@@ -120,6 +120,84 @@ class Jobs{
 
     if (!job) throw new NotFoundError(`No job with id: ${id}`);
   }
+  
+  /** Find all jobs that match query parameters.
+  * Returns [{ id, title, salary, equity}, ...]
+  * */
+  
+  static async find(params){
+    const { title, minSalary, hasEquity } = params;
+    
+    if (title && minSalary) {
+      const min = parseInt(minSalary)
+      const res = await db.query(`
+                SELECT id, title, salary, equity, company_handle AS "companyHandle"
+                 FROM jobs
+                WHERE salary >= $1  AND title=$2
+                ORDER BY salary`, [min, title])
+      if (res.rows.length === 0) {
+        throw new NotFoundError(`No jobs with that minSalary: ${min} and equity`);
+      }
+      return res.rows
+    
+    } else if (title){
+      let res =  await db.query(`
+              SELECT id, title, salary, equity, company_handle AS "companyHandle"
+              FROM jobs
+              WHERE title ILIKE $1`,[`%${title}%`])
+    if (res.rows.length === 0 ){
+        throw new NotFoundError(`No jobs with that title: ${title}`);
+      }
+      return res.rows
+    }
+    
+    else if (minSalary && hasEquity === 'true') {
+      const min = parseInt(minSalary)
+      const res = await db.query(`
+                SELECT id, title, salary, equity, company_handle AS "companyHandle"
+                 FROM jobs
+                WHERE salary >= $1 AND equity > 0
+                ORDER BY salary`, [min])
+      if (res.rows.length === 0) {
+        throw new NotFoundError(`No jobs with that minSalary: ${min} and equity`);
+      }
+      return res.rows
+      
+    }else if(minSalary){
+      const min = parseInt(minSalary)
+      const res = await db.query(`
+                SELECT id, title, salary, equity, company_handle AS "companyHandle"
+                FROM jobs
+                WHERE salary >= $1
+                ORDER BY salary`, [min])
+      if (res.rows.length === 0 ){
+        throw new NotFoundError(`No jobs with that minSalary: ${min}`);
+      }
+      return res.rows
+    }
+    
+    else if(hasEquity === 'true'){
+      const res = await db.query(`
+                SELECT id, title, salary, equity, company_handle AS "companyHandle"
+                FROM jobs
+                WHERE equity > 0
+                ORDER BY equity DESC`)
+      
+      return res.rows
+      
+    }else if(hasEquity === 'false'){
+      const res = await db.query(`
+                SELECT id, title, salary, equity, company_handle AS "companyHandle"
+                FROM jobs
+                WHERE equity=0 OR equity=null
+                ORDER BY equity DESC`)
+      
+      return res.rows
+      
+    }else if (hasEquity !== 'true' || hasEquity !== 'false'){
+      throw new BadRequestError(`hasEquity must be either true or false`)
+    }
+  }
 }
 
 

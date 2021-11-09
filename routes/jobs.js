@@ -59,16 +59,15 @@ router.get("/", async function (req, res, next) {
       // validate parameters passed.
       if (!validator.valid) {
         const errs = validator.errors.map(e => e.stack);
-        throw new BadRequestError(errs);
+        throw new BadRequestError(`Filters allowed are : title, minSalary and hasEquity`);
         
-      // if valid use filters to get companies  
+      // if valid use filters to get jobs  
       } else {
-        const jobs = await Jobs.find(req.query)
-        // NEED TO IMPLEMENT find METHOD FOR THIS ONE.
+        const jobs = await Job.find(req.query)
         return res.json({ jobs })
       }
       
-    // if no query parameters provided get all companies
+    // if no query parameters provided get all jobs
     }else {
       const jobs = await Job.findAll();
       return res.json({ jobs });
